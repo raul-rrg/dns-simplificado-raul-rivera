@@ -54,16 +54,11 @@ public class Main {
                     switch (comando) {
 
                         case "LOOKUP" -> {
-                            String resultado = resolverDominio(comandos, mapRegistros);
-                            salida.println(resultado);
+                            salida.println(resolverDominio(comandos, mapRegistros));
                         }
 
                         case "LIST" -> {
-                            if (comandos.length == 1) {
-                                salida.println(listarRegistros(mapRegistros));
-                            } else {
-                                salida.println("400 Bad request");
-                            }
+                           salida.println(listarRegistros(comandos, mapRegistros));
                         }
 
                         default -> salida.println("400 Bad request");
@@ -86,39 +81,44 @@ public class Main {
 
     public static String resolverDominio(String[] comandos, HashMap<String, ArrayList<Registro>> mapRegistros){
 
-        String dominio = comandos[2];
-        String operacion = comandos[1];
-        String resultado = "";
-
-
-        if (comandos.length != 3 || !comandos[0].equals("LOOKUP")) {
+        if (comandos.length != 3 || !comandos[0].equalsIgnoreCase("LOOKUP")) {
             return "400 Bad request";
         }
 
-            if (!(operacion.equalsIgnoreCase("A") || operacion.equalsIgnoreCase("MX") || operacion.equalsIgnoreCase("CNAME"))) {
+        String dominio = comandos[2];
+        String tipo = comandos[1];
+        StringBuilder resultado = new StringBuilder();
+
+        if (!(tipo.equalsIgnoreCase("A") || tipo.equalsIgnoreCase("MX") || tipo.equalsIgnoreCase("CNAME"))) {
                 return "400 Bad request";
-            }
-
-        if (mapRegistros.get(dominio) != null){
-            ArrayList<Registro> listaRegistros = mapRegistros.get(dominio);
-
-            for (Registro r: listaRegistros){
-                if(r.getTipo().equals(operacion)){
-                    String ip =  r.getValor();
-                    resultado = "200 " + ip;
-                }
-            }
-        } else{
-            resultado =  "404 NOT FOUND";
         }
 
-        return resultado;
+        ArrayList<Registro> listaDeRegistros = mapRegistros.get(dominio);
+        if (listaDeRegistros == null) {
+            return "404 Not Found";
+        }
+
+        for (Registro r : listaDeRegistros) {
+            if (r.getTipo().equalsIgnoreCase(tipo)) {
+                resultado.append("200 ").append(r.getValor()).append("\n");
+            }
+        }
+
+        if (resultado.isEmpty()){
+            return "404 NOT FOUND";
+        }
+
+        return resultado.toString().trim();
 
     }
 
-    public static String listarRegistros(HashMap<String, ArrayList<Registro>> mapRegistros) {
-        StringBuilder registros = new StringBuilder();
+    public static String listarRegistros(String[] comandos, HashMap<String, ArrayList<Registro>> mapRegistros) {
 
+        if (comandos.length != 1 || !comandos[0].equalsIgnoreCase("LIST")) {
+            return "400 Bad request";
+        }
+
+        StringBuilder registros = new StringBuilder();
         registros.append("150 Inicio listado").append("\n");
 
         for (String dominio : mapRegistros.keySet()) {
@@ -135,9 +135,9 @@ public class Main {
         }
 
         registros.append("226 Fin listado");
-
         return registros.toString();
     }
+
 
 
 }
