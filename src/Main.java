@@ -58,6 +58,14 @@ public class Main {
                             salida.println(resultado);
                         }
 
+                        case "LIST" -> {
+                            if (comandos.length == 1) {
+                                salida.println(listarRegistros(mapRegistros));
+                            } else {
+                                salida.println("400 Bad request");
+                            }
+                        }
+
                         default -> salida.println("400 Bad request");
                     }
 
@@ -76,7 +84,7 @@ public class Main {
     }
 
 
-        public static String resolverDominio(String[] comandos, HashMap<String, ArrayList<Registro>> mapRegistros){
+    public static String resolverDominio(String[] comandos, HashMap<String, ArrayList<Registro>> mapRegistros){
 
         String dominio = comandos[2];
         String operacion = comandos[1];
@@ -96,17 +104,40 @@ public class Main {
 
             for (Registro r: listaRegistros){
                 if(r.getTipo().equals(operacion)){
-                    String ip =  r.getIp();
+                    String ip =  r.getValor();
                     resultado = "200 " + ip;
                 }
             }
         } else{
             resultado =  "404 NOT FOUND";
-
         }
 
         return resultado;
 
     }
+
+    public static String listarRegistros(HashMap<String, ArrayList<Registro>> mapRegistros) {
+        StringBuilder registros = new StringBuilder();
+
+        registros.append("150 Inicio listado").append("\n");
+
+        for (String dominio : mapRegistros.keySet()) {
+            ArrayList<Registro> listaRegistros = mapRegistros.get(dominio);
+
+            for (Registro r : listaRegistros) {
+                registros.append(dominio)
+                        .append(" ")
+                        .append(r.getTipo())
+                        .append(" ")
+                        .append(r.getValor())
+                        .append("\n");
+            }
+        }
+
+        registros.append("226 Fin listado");
+
+        return registros.toString();
+    }
+
 
 }

@@ -1,14 +1,14 @@
 public class Registro {
     private String dominio;
     private String tipo;
-    private String ip;
+    private String valor;
 
     public Registro(){}
 
     public Registro(String  dominio, String tipo, String ip) {
         this.dominio = dominio;
         this.tipo = tipo;
-        this.ip = ip;
+        this.valor = ip;
     }
 
     public String getDominio() {
@@ -27,16 +27,16 @@ public class Registro {
         this.tipo = tipo;
     }
 
-    public String getIp() {
-        return ip;
+    public String getValor() {
+        return valor;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setValor(String valor) {
+        this.valor = valor;
     }
 
     @Override
     public String toString() {
-      return String.format("%s %s %s", dominio, tipo, ip);
+      return String.format("%s %s %s", dominio, tipo, valor);
     }
 }
